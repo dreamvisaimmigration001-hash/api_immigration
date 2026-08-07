@@ -70,7 +70,18 @@ const createUser = async (req, res) => {
   }
 };
 
+const getUsers = async (req, res) => {
+  try {
+    const users = await User.find({ role: 'user' }).select('-password');
+    res.status(200).json(users);
+  } catch (error) {
+    console.error('Get users error:', error);
+    res.status(500).json({ message: 'Server error while fetching users' });
+  }
+};
+
 export {
   createEmploye,
-  createUser
+  createUser,
+  getUsers
 };

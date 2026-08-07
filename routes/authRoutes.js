@@ -25,8 +25,9 @@ router.post('/employe', authenticate, authorize('admin'), userController.createE
 // Protected routes for Employe
 // Only employes can create users
 // (If you also want admins to be able to create users, you would use: authorize(['admin', 'employe']))
-router.post('/user', authenticate, authorize('employe'), userController.createUser);
-
+router.post('/user', authenticate, authorize(['admin', 'employe']), userController.createUser);
+// Protected route to get all standard users
+router.get('/users', authenticate, authorize(['admin', 'employe']), userController.getUsers);
 // Example of a protected route accessible by any authenticated role
 router.get('/me', authenticate, (req, res) => {
   res.json({ user: req.user });
