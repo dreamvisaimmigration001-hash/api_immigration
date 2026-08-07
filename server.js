@@ -20,6 +20,7 @@ const app = express();
 // CORS configuration
 const allowedOrigins = process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim());
 app.use(cors({
+  origin:"*",
   credentials: true, // often needed if using cookies
 }));
 
