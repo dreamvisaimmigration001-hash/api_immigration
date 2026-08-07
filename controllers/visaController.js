@@ -125,12 +125,8 @@ export const getVisaByGrantNumber = async (req, res) => {
       return res.status(404).json({ message: 'Visa not found' });
     }
 
-    // Only allow users to view the visa if they own it, unless they are admin/employe
-    if (req.user.role === 'user' && (!visa.userId || visa.userId.toString() !== req.user._id.toString())) {
-      return res.status(403).json({ message: 'Forbidden. You do not have permission to view this visa.' });
-    }
-
-    res.status(200).json({ visa });
+    // Route is now public, so we don't check req.user
+    res.status(200).json(visa);
   } catch (error) {
     console.error('Get visa by grant number error:', error);
     res.status(500).json({ message: 'Server error while fetching visa' });
