@@ -13,73 +13,73 @@ const visaSchema = new mongoose.Schema({
   },
   familyName: {
     type: String,
-    required: function() { return this.applicationType === 'visa'; }
+    required: false
   },
   givenNames: {
     type: String,
-    required: function() { return this.applicationType === 'visa'; }
+    required: false
   },
   documentNumber: {
     type: String,
-    required: function() { return this.applicationType === 'visa'; }
+    required: false
   },
   visaClassSubclass: {
     type: String,
-    required: function() { return this.applicationType === 'visa'; }
+    required: false
   },
   visaApplicant: {
     type: String,
-    required: function() { return this.applicationType === 'visa'; }
+    required: false
   },
   visaGrantDate: {
     type: String,
-    required: function() { return this.applicationType === 'visa'; }
+    required: false
   },
   visaExpiryDate: {
     type: String,
-    required: function() { return this.applicationType === 'visa'; }
+    required: false
   },
   location: {
     type: String,
-    required: function() { return this.applicationType === 'visa'; }
+    required: false
   },
   visaStatus: {
     type: String,
-    required: function() { return this.applicationType === 'visa'; }
+    required: false
   },
   visaGrantNumber: {
     type: String,
-    required: function() { return this.applicationType === 'visa'; },
+    required: false,
     unique: true,
     sparse: true
   },
   entriesAllowed: {
     type: String,
-    required: function() { return this.applicationType === 'visa'; }
+    required: false
   },
   mustNotArriveAfter: {
     type: String,
-    required: function() { return this.applicationType === 'visa'; }
+    required: false
   },
   enterBeforeDate: {
     type: String,
-    required: function() { return this.applicationType === 'visa'; }
+    required: false
   },
   periodOfStay: {
     type: String,
-    required: function() { return this.applicationType === 'visa'; }
+    required: false
   },
   visaType: {
     type: String,
-    required: function() { return this.applicationType === 'visa'; }
+    required: false
   },
   dateOfBirth: {
     type: String,
-    required: function() { return this.applicationType === 'visa'; }
+    required: false
   },
   nationality: {
     type: String,
-    required: function() { return this.applicationType === 'visa'; }
+    required: false
   },
   // Extra fields for sponsorships and aewv can go here dynamically
   employer: String,
