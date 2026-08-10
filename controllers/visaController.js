@@ -7,7 +7,8 @@ const ALLOWED_VISA_FIELDS = [
   'visaClassSubclass', 'visaApplicant', 'visaGrantDate',
   'visaExpiryDate', 'location', 'visaStatus', 'visaGrantNumber',
   'entriesAllowed', 'mustNotArriveAfter', 'enterBeforeDate',
-  'periodOfStay', 'visaType', 'dateOfBirth', 'nationality'
+  'periodOfStay', 'visaType', 'dateOfBirth', 'nationality',
+  'applicationType', 'status', 'fullName', 'employer', 'jobTitle', 'type'
 ];
 
 // Helper to pick only allowed fields from request body
