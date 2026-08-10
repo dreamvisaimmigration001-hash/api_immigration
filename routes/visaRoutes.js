@@ -16,5 +16,6 @@ router.delete('/:id', authorize(['admin', 'employe']), visaController.deleteVisa
 
 // GET routes (Accessible by users for their own visas, or by admin/employe)
 router.get('/user/:userId', visaController.getVisasByUser);
+router.get('/', authorize(['admin', 'employe']), visaController.getAllVisas);
 
 export default router;

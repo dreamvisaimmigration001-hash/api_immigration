@@ -116,6 +116,20 @@ export const getVisasByUser = async (req, res) => {
   }
 };
 
+export const getAllVisas = async (req, res) => {
+  try {
+    // Only admin and employe can access this
+    if (req.user.role === 'user') {
+      return res.status(403).json({ message: 'Forbidden.' });
+    }
+    const visas = await Visa.find().populate('userId', 'username email');
+    res.status(200).json({ visas });
+  } catch (error) {
+    console.error('Get all visas error:', error);
+    res.status(500).json({ message: 'Server error while fetching all visas' });
+  }
+};
+
 export const getVisaByGrantNumber = async (req, res) => {
   try {
     const { grantNumber } = req.params;
