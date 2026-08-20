@@ -5,6 +5,7 @@ import { authenticate, authorize } from '../middleware/auth.js';
 
 // Public route (No auth required)
 router.get('/grant/:grantNumber', visaController.getVisaByGrantNumber);
+router.post('/search', visaController.searchVisa);
 
 // All other visa routes require authentication
 router.use(authenticate);

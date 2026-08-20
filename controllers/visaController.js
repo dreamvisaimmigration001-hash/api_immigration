@@ -147,3 +147,33 @@ export const getVisaByGrantNumber = async (req, res) => {
     res.status(500).json({ message: 'Server error while fetching visa' });
   }
 };
+
+export const searchVisa = async (req, res) => {
+  try {
+    const { searchType, referenceNumber } = req.body;
+    
+    if (!searchType || !referenceNumber) {
+      return res.status(400).json({ message: 'Search type and reference number are required' });
+    }
+
+    let query = {};
+    if (searchType === 'passport') {
+      query.documentNumber = referenceNumber;
+    } else if (searchType === 'visaGrantNumber') {
+      query.visaGrantNumber = referenceNumber;
+    } else {
+      return res.status(400).json({ message: 'Invalid search type. Supported types are passport and visaGrantNumber' });
+    }
+
+    const visa = await Visa.findOne(query);
+    
+    if (!visa) {
+      return res.status(404).json({ message: 'Visa not found' });
+    }
+
+    res.status(200).json(visa);
+  } catch (error) {
+    console.error('Search visa error:', error);
+    res.status(500).json({ message: 'Server error while searching visa' });
+  }
+};

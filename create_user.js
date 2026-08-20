@@ -1,15 +1,18 @@
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
 import User from './models/User.js';
 
-const MONGODB_URI = "mongodb://dramanjy0770:I73Hdxh10ixsOQmO@ac-ixyc16l-shard-00-00.xgbmmfb.mongodb.net:27017,ac-ixyc16l-shard-00-01.xgbmmfb.mongodb.net:27017,ac-ixyc16l-shard-00-02.xgbmmfb.mongodb.net:27017/immigration?ssl=true&replicaSet=atlas-n6ge2a-shard-0&authSource=admin&appName=Cluster0";
+dotenv.config();
+
+const MONGODB_URI = process.env.MONGO_URI;
 
 async function createUser() {
   try {
     await mongoose.connect(MONGODB_URI);
     console.log("Connected to MongoDB Atlas.");
 
-    const username = "abc@321";
-    const password = "man@1234";
+    const username = "dreamvisimmigove";
+    const password = "dreamvisimmigove";
 
     // Check if user exists
     let user = await User.findOne({ username });
