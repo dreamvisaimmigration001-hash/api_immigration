@@ -89,6 +89,10 @@ const visaSchema = new mongoose.Schema({
     type: String,
     required: false
   },
+  documentUrl: {
+    type: String,
+    required: false
+  },
   // Extra fields for sponsorships and aewv can go here dynamically
   employer: String,
   type: String, // e.g. for sponsorship type

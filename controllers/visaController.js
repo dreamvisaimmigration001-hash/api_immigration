@@ -8,7 +8,8 @@ const ALLOWED_VISA_FIELDS = [
   'visaExpiryDate', 'location', 'visaStatus', 'visaGrantNumber',
   'entriesAllowed', 'mustNotArriveAfter', 'enterBeforeDate',
   'periodOfStay', 'visaType', 'dateOfBirth', 'nationality',
-  'applicationType', 'status', 'fullName', 'employer', 'jobTitle', 'type', 'trn', 'visaorigin'
+  'applicationType', 'status', 'fullName', 'employer', 'jobTitle', 'type', 'trn', 'visaorigin',
+  'documentUrl', 'document'
 ];
 
 // Helper to pick only allowed fields from request body
@@ -19,8 +20,11 @@ const sanitizeBody = (body) => {
       sanitized[key] = body[key];
     }
   }
+  if (body.document !== undefined && !sanitized.documentUrl) {
+    sanitized.documentUrl = body.document;
+  }
   return sanitized;
-}
+};
 
 // Helper to validate MongoDB ObjectId
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
