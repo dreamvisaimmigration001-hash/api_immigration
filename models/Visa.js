@@ -19,6 +19,14 @@ const visaSchema = new mongoose.Schema({
     type: String,
     required: false
   },
+  trn: {
+    type: String,
+    required: false
+  },
+  visaorigin: {
+    type: String,
+    required: true
+  },
   documentNumber: {
     type: String,
     required: false

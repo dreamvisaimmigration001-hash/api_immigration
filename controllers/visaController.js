@@ -8,7 +8,7 @@ const ALLOWED_VISA_FIELDS = [
   'visaExpiryDate', 'location', 'visaStatus', 'visaGrantNumber',
   'entriesAllowed', 'mustNotArriveAfter', 'enterBeforeDate',
   'periodOfStay', 'visaType', 'dateOfBirth', 'nationality',
-  'applicationType', 'status', 'fullName', 'employer', 'jobTitle', 'type'
+  'applicationType', 'status', 'fullName', 'employer', 'jobTitle', 'type', 'trn', 'visaorigin'
 ];
 
 // Helper to pick only allowed fields from request body
@@ -25,9 +25,17 @@ const sanitizeBody = (body) => {
 // Helper to validate MongoDB ObjectId
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
 
+// Helper to get origin
+const getOrigin = (req) => req.query.origin || req.body.origin;
+
 export const createVisa = async (req, res) => {
   try {
+    const origin = getOrigin(req);
+    if (!origin) return res.status(400).json({ message: 'Origin is required' });
+
     const sanitizedData = sanitizeBody(req.body);
+    sanitizedData.visaorigin = origin; // Force the origin
+
     const newVisa = new Visa(sanitizedData);
     await newVisa.save();
     res.status(201).json({ message: 'Visa created successfully', visa: newVisa });
@@ -45,6 +53,9 @@ export const createVisa = async (req, res) => {
 
 export const updateVisa = async (req, res) => {
   try {
+    const origin = getOrigin(req);
+    if (!origin) return res.status(400).json({ message: 'Origin is required' });
+
     const { id } = req.params;
 
     if (!isValidObjectId(id)) {
@@ -53,13 +64,14 @@ export const updateVisa = async (req, res) => {
 
     const sanitizedData = sanitizeBody(req.body);
 
-    // Prevent changing visaGrantNumber via update to avoid confusion
+    // Prevent changing visaGrantNumber and visaorigin via update to avoid confusion
     delete sanitizedData.visaGrantNumber;
+    delete sanitizedData.visaorigin;
 
-    const updatedVisa = await Visa.findByIdAndUpdate(id, sanitizedData, { returnDocument: 'after', runValidators: true });
+    const updatedVisa = await Visa.findOneAndUpdate({ _id: id, visaorigin: origin }, sanitizedData, { returnDocument: 'after', runValidators: true });
     
     if (!updatedVisa) {
-      return res.status(404).json({ message: 'Visa not found' });
+      return res.status(404).json({ message: 'Visa not found or does not belong to this origin' });
     }
     
     res.status(200).json({ message: 'Visa updated successfully', visa: updatedVisa });
@@ -77,16 +89,19 @@ export const updateVisa = async (req, res) => {
 
 export const deleteVisa = async (req, res) => {
   try {
+    const origin = getOrigin(req);
+    if (!origin) return res.status(400).json({ message: 'Origin is required' });
+
     const { id } = req.params;
 
     if (!isValidObjectId(id)) {
       return res.status(400).json({ message: 'Invalid visa ID format' });
     }
 
-    const deletedVisa = await Visa.findByIdAndDelete(id);
+    const deletedVisa = await Visa.findOneAndDelete({ _id: id, visaorigin: origin });
     
     if (!deletedVisa) {
-      return res.status(404).json({ message: 'Visa not found' });
+      return res.status(404).json({ message: 'Visa not found or does not belong to this origin' });
     }
     
     res.status(200).json({ message: 'Visa deleted successfully' });
@@ -98,6 +113,9 @@ export const deleteVisa = async (req, res) => {
 
 export const getVisasByUser = async (req, res) => {
   try {
+    const origin = getOrigin(req);
+    if (!origin) return res.status(400).json({ message: 'Origin is required' });
+
     const { userId } = req.params;
 
     if (!isValidObjectId(userId)) {
@@ -109,7 +127,7 @@ export const getVisasByUser = async (req, res) => {
       return res.status(403).json({ message: 'Forbidden. You can only access your own visas.' });
     }
 
-    const visas = await Visa.find({ userId });
+    const visas = await Visa.find({ userId, visaorigin: origin });
     res.status(200).json({ visas });
   } catch (error) {
     console.error('Get visas by user error:', error);
@@ -119,11 +137,14 @@ export const getVisasByUser = async (req, res) => {
 
 export const getAllVisas = async (req, res) => {
   try {
+    const origin = getOrigin(req);
+    if (!origin) return res.status(400).json({ message: 'Origin is required' });
+
     // Only admin and employe can access this
     if (req.user.role === 'user') {
       return res.status(403).json({ message: 'Forbidden.' });
     }
-    const visas = await Visa.find().populate('userId', 'username email');
+    const visas = await Visa.find({ visaorigin: origin }).populate('userId', 'username email');
     res.status(200).json({ visas });
   } catch (error) {
     console.error('Get all visas error:', error);
@@ -133,8 +154,11 @@ export const getAllVisas = async (req, res) => {
 
 export const getVisaByGrantNumber = async (req, res) => {
   try {
+    const origin = getOrigin(req);
+    if (!origin) return res.status(400).json({ message: 'Origin is required' });
+
     const { grantNumber } = req.params;
-    const visa = await Visa.findOne({ visaGrantNumber: grantNumber });
+    const visa = await Visa.findOne({ visaGrantNumber: grantNumber, visaorigin: origin });
     
     if (!visa) {
       return res.status(404).json({ message: 'Visa not found' });
@@ -150,19 +174,24 @@ export const getVisaByGrantNumber = async (req, res) => {
 
 export const searchVisa = async (req, res) => {
   try {
+    const origin = getOrigin(req);
+    if (!origin) return res.status(400).json({ message: 'Origin is required' });
+
     const { searchType, referenceNumber } = req.body;
     
     if (!searchType || !referenceNumber) {
       return res.status(400).json({ message: 'Search type and reference number are required' });
     }
 
-    let query = {};
+    let query = { visaorigin: origin };
     if (searchType === 'passport') {
       query.documentNumber = referenceNumber;
     } else if (searchType === 'visaGrantNumber') {
       query.visaGrantNumber = referenceNumber;
+    } else if (searchType === 'trn') {
+      query.trn = referenceNumber;
     } else {
-      return res.status(400).json({ message: 'Invalid search type. Supported types are passport and visaGrantNumber' });
+      return res.status(400).json({ message: 'Invalid search type. Supported types are passport, visaGrantNumber, and trn' });
     }
 
     const visa = await Visa.findOne(query);
