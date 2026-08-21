@@ -20,7 +20,7 @@ const sanitizeBody = (body) => {
     }
   }
   return sanitized;
-};
+}
 
 // Helper to validate MongoDB ObjectId
 const isValidObjectId = (id) => mongoose.Types.ObjectId.isValid(id);
