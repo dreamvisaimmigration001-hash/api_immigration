@@ -25,6 +25,7 @@ const visaSchema = new mongoose.Schema({
   },
   visaorigin: {
     type: String,
+    enum: ['nz', 'au'],
     required: true
   },
   documentNumber: {
