@@ -75,6 +75,8 @@ export const createVisa = async (req, res) => {
       )
     };
 
+    delete sanitizedData.documentUrl;
+
     const newVisa = new Visa(sanitizedData);
     await newVisa.save();
     res.status(201).json({ message: 'Visa created successfully', visa: newVisa });
@@ -108,6 +110,8 @@ export const updateVisa = async (req, res) => {
 
     const sanitizedData = sanitizeBody(req.body);
 
+    sanitizedData.document = [];  
+
     // Prevent changing visaGrantNumber and visaorigin via update to avoid confusion
     delete sanitizedData.visaGrantNumber;
     delete sanitizedData.visaorigin;
@@ -121,8 +125,6 @@ export const updateVisa = async (req, res) => {
       const uploadResponse = await cloudinary.uploader.upload(req.body.document, {
         folder: 'immigration_documents'
       });
-
-      sanitizedData.document = [];
       
       sanitizedData.document.push(
         {
@@ -131,7 +133,6 @@ export const updateVisa = async (req, res) => {
         }
       )
     } else if (req.file && req.file.path) {
-      sanitizedData.document = [];
       const documentName = req.body.documentName;
 
       if(!documentName){
