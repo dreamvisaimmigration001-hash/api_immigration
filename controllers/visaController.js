@@ -41,6 +41,8 @@ export const createVisa = async (req, res) => {
     const sanitizedData = sanitizeBody(req.body);
     sanitizedData.visaorigin = origin; // Force the origin
 
+    sanitizedData.document = [];
+
     if (req.body.document && typeof req.body.document === 'string' && req.body.document.startsWith('data:')) {
       // Upload base64 document to Cloudinary
       if (!req.body.documentName) {
@@ -50,8 +52,6 @@ export const createVisa = async (req, res) => {
       const uploadResponse = await cloudinary.uploader.upload(req.body.document, {
         folder: 'immigration_documents'
       });
-
-      sanitizedData.document = [];
       
       sanitizedData.document.push(
         {
@@ -60,7 +60,6 @@ export const createVisa = async (req, res) => {
         }
       )
     } else if (req.file && req.file.path) {
-      sanitizedData.document = [];
       const documentName = req.body.documentName;
 
       if(!documentName){
