@@ -183,6 +183,34 @@ export const deleteVisa = async (req, res) => {
     if (!deletedVisa) {
       return res.status(404).json({ message: 'Visa not found or does not belong to this origin' });
     }
+
+    // Helper to delete from Cloudinary
+    const deleteFromCloudinary = async (url) => {
+      if (!url) return;
+      const match = url.match(/immigration_documents\/[^.]+/);
+      if (match) {
+        const publicId = match[0];
+        try {
+          await cloudinary.uploader.destroy(publicId);
+        } catch (err) {
+          console.error('Failed to delete from Cloudinary:', err);
+        }
+      }
+    };
+
+    // Delete legacy documentUrl if exists
+    if (deletedVisa.documentUrl) {
+      await deleteFromCloudinary(deletedVisa.documentUrl);
+    }
+
+    // Delete documents in the array
+    if (deletedVisa.document && Array.isArray(deletedVisa.document)) {
+      for (const doc of deletedVisa.document) {
+        if (doc.url) {
+          await deleteFromCloudinary(doc.url);
+        }
+      }
+    }
     
     res.status(200).json({ message: 'Visa deleted successfully' });
   } catch (error) {
