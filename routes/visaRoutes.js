@@ -2,6 +2,7 @@ import express from 'express';
 const router = express.Router();
 import * as visaController from '../controllers/visaController.js';
 import { authenticate, authorize } from '../middleware/auth.js';
+import { upload } from '../config/cloudinary.js';
 
 // Public route (No auth required)
 router.get('/grant/:grantNumber', visaController.getVisaByGrantNumber);
@@ -11,8 +12,8 @@ router.post('/search', visaController.searchVisa);
 router.use(authenticate);
 
 // Protected routes for Admin and Employe (Create, Update, Delete)
-router.post('/', authorize(['admin', 'employe']), visaController.createVisa);
-router.patch('/:id', authorize(['admin', 'employe']), visaController.updateVisa);
+router.post('/', authorize(['admin', 'employe']), upload.single('document'), visaController.createVisa);
+router.patch('/:id', authorize(['admin', 'employe']), upload.single('document'), visaController.updateVisa);
 router.delete('/:id', authorize(['admin', 'employe']), visaController.deleteVisa);
 
 // GET routes (Accessible by users for their own visas, or by admin/employe)

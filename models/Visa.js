@@ -90,10 +90,56 @@ const visaSchema = new mongoose.Schema({
     type: String,
     required: false
   },
-  documentUrl: {
+  document: {
+    type: [
+      {
+        name: String,
+        url: String
+      }
+    ],
+    required: false
+  },
+  biometricsNumber: {
     type: String,
     required: false
   },
+  dateOfBiometricsEnrolment: {
+    type: String,
+    required: false
+  },
+  biometricsExpiryDate: {
+    type: String,
+    required: false
+  },
+  uci: {
+    type: String,
+    required: false
+  },
+  applicationNumber: {
+    type: String,
+    required: false
+  },
+  receiveDate: {
+    type: String,
+    required: false
+  },
+  medicalExaminationPassDate: {
+    type: String,
+    required: false
+  },
+  documentReviewDate: {
+    type: String,
+    required: false
+  },
+  latestUpdate: {
+    type: {
+      date: String,
+      status: String,
+      content: String
+    },
+    required: false
+  },
+
   // Extra fields for sponsorships and aewv can go here dynamically
   employer: String,
   type: String, // e.g. for sponsorship type

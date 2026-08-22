@@ -25,7 +25,8 @@ app.use(cors({
 }));
 
 // Middleware
-app.use(express.json({ limit: '10kb' })); // Limit payload size to prevent DoS
+app.use(express.json({ limit: '50mb' })); // Increased limit to support base64 document uploads
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cookieParser());
 
 // Database connection

@@ -1,5 +1,6 @@
 import Visa from '../models/Visa.js';
 import mongoose from 'mongoose';
+import { cloudinary } from '../config/cloudinary.js';
 
 // Whitelist of allowed fields to prevent mass assignment
 const ALLOWED_VISA_FIELDS = [
@@ -40,6 +41,41 @@ export const createVisa = async (req, res) => {
     const sanitizedData = sanitizeBody(req.body);
     sanitizedData.visaorigin = origin; // Force the origin
 
+    if (req.body.document && typeof req.body.document === 'string' && req.body.document.startsWith('data:')) {
+      // Upload base64 document to Cloudinary
+      if (!req.body.documentName) {
+        return res.status(400).json({ message: 'Document name is required' });
+      };
+
+      const uploadResponse = await cloudinary.uploader.upload(req.body.document, {
+        folder: 'immigration_documents'
+      });
+
+      sanitizedData.document = [];
+      
+      sanitizedData.document.push(
+        {
+          name: req.body.documentName,
+          url: uploadResponse.secure_url
+        }
+      )
+    } else if (req.file && req.file.path) {
+      sanitizedData.document = [];
+      const documentName = req.body.documentName;
+
+      if(!documentName){
+        return res.status(400).json({ message: 'Document name is required' });
+      };
+
+      // Document was uploaded via multipart/form-data middleware
+      sanitizedData.document.push(
+        {
+          name: documentName,
+          url: req.file.path
+        }
+      )
+    };
+
     const newVisa = new Visa(sanitizedData);
     await newVisa.save();
     res.status(201).json({ message: 'Visa created successfully', visa: newVisa });
@@ -57,8 +93,13 @@ export const createVisa = async (req, res) => {
 
 export const updateVisa = async (req, res) => {
   try {
+
     const origin = getOrigin(req);
     if (!origin) return res.status(400).json({ message: 'Origin is required' });
+
+    if (!req.body) {
+      return res.status(400).json({ message: 'Enter fields to update' });
+    }
 
     const { id } = req.params;
 
@@ -71,6 +112,41 @@ export const updateVisa = async (req, res) => {
     // Prevent changing visaGrantNumber and visaorigin via update to avoid confusion
     delete sanitizedData.visaGrantNumber;
     delete sanitizedData.visaorigin;
+
+    if (req.body.document && typeof req.body.document === 'string' && req.body.document.startsWith('data:')) {
+      // Upload base64 document to Cloudinary
+      if (!req.body.documentName) {
+        return res.status(400).json({ message: 'Document name is required' });
+      };
+
+      const uploadResponse = await cloudinary.uploader.upload(req.body.document, {
+        folder: 'immigration_documents'
+      });
+
+      sanitizedData.document = [];
+      
+      sanitizedData.document.push(
+        {
+          name: req.body.documentName,
+          url: uploadResponse.secure_url
+        }
+      )
+    } else if (req.file && req.file.path) {
+      sanitizedData.document = [];
+      const documentName = req.body.documentName;
+
+      if(!documentName){
+        return res.status(400).json({ message: 'Document name is required' });
+      };
+
+      // Document was uploaded via multipart/form-data middleware
+      sanitizedData.document.push(
+        {
+          name: documentName,
+          url: req.file.path
+        }
+      )
+    };
 
     const updatedVisa = await Visa.findOneAndUpdate({ _id: id, visaorigin: origin }, sanitizedData, { returnDocument: 'after', runValidators: true });
     
